@@ -1,6 +1,6 @@
 # Welcome to solana ignited starter!
 
-![Ignite Solana Starter App](readme-cover.png)
+![Ignite Solana Starter App](assets/images//readme-cover.png)
 
 A React Native starter app with Solana Mobile Wallet Authentication (MWA) integration for Android devices. This project demonstrates how to connect, disconnect, and sign messages using mobile wallet apps.
 
