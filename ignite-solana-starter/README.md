@@ -41,6 +41,14 @@ src
 - Setup Device/Emulator
 - Install a MWA compliant Wallet app (Solflare/Phantom)
 
+### Cloning the starter
+
+```bash
+git clone --filter=blob:none --sparse https://github.com/0Xsolcreator/react-native-templates.git 
+cd react-native-templates/
+git sparse-checkout set ignite-solana-starter
+```
+
 ### Installation
 
 ```bash
