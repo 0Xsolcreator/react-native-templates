@@ -1,5 +1,6 @@
 import { View, Image } from "react-native"
 import type { ViewStyle, TextStyle } from "react-native"
+import bs58 from "bs58"
 import { toast } from "sonner-native"
 
 import { Button } from "@/components/Button"
@@ -7,7 +8,11 @@ import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { ToggleTheme } from "@/components/ThemeToggle"
 import { WalletDetails } from "@/components/WalletDetails"
-import { clearAuthDetails } from "@/store/features/authSlice"
+import {
+  usePrepareAuthenticationMutation,
+  useVerifyAndGetJwtMutation,
+} from "@/services/api/dialectAlerts"
+import { clearAuthDetails, setDialectJwt } from "@/store/features/authSlice"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
@@ -18,6 +23,9 @@ export default function HomeScreen() {
   const authDetails = useAppSelector((state) => state.auth)
   const dispatch = useAppDispatch()
   const { themed } = useAppTheme()
+
+  const [prepareAuthentication] = usePrepareAuthenticationMutation()
+  const [verifyAndGetJwt] = useVerifyAndGetJwtMutation()
 
   const handleDisconnectWallet = async () => {
     if (!authDetails.authToken) {
@@ -40,10 +48,36 @@ export default function HomeScreen() {
     }
 
     try {
-      await signMessage(authDetails.authToken, authDetails.address)
+      await signMessage(authDetails.authToken, authDetails.address, "Dialect Alerts")
       toast.success("Message signed successfully")
     } catch (error: any) {
       console.error("error: Sign Message Error", error)
+    }
+  }
+
+  const dialectAlertsAuthentication = async (walletAddress: string) => {
+    if (!authDetails.authToken || !authDetails.address) {
+      toast.error("No auth token or address found")
+      console.error("error: No auth token or address found")
+      return
+    }
+
+    try {
+      const { message } = await prepareAuthentication({ walletAddress }).unwrap()
+      const { signatures } = await signMessage(authDetails.authToken, authDetails.address, message)
+      console.log("info: Dialect Alerts Authentication", signatures)
+
+      const signatureBase58 = bs58.encode(signatures[0])
+
+      const { token } = await verifyAndGetJwt({
+        message: message,
+        signature: signatureBase58,
+      }).unwrap()
+      console.log("info: Dialect Alerts Authentication", token)
+      dispatch(setDialectJwt(token))
+    } catch (error) {
+      console.error("error: Dialect Alerts Authentication Error", error)
+      toast.error("Error Connecting to Dialect")
     }
   }
 
@@ -62,6 +96,12 @@ export default function HomeScreen() {
             onSignMessage={handleSignMessage}
           />
           <ToggleTheme />
+          <Button
+            onPress={() => dialectAlertsAuthentication(authDetails.address || "")}
+            text="Connect to Dialect"
+            textStyle={themed($connectButtonText)}
+            style={themed($connectButton)}
+          />
         </View>
       </View>
       <View style={themed($footer)}>

@@ -40,6 +40,7 @@
     "@solana-mobile/mobile-wallet-adapter-protocol-web3js": "^2.2.2",
     "@solana/web3.js": "^1.98.2",
     "apisauce": "3.1.1",
+    "bs58": "^6.0.0",
     "buffer": "^6.0.3",
     "date-fns": "^4.1.0",
     "expo": "^53.0.15",
