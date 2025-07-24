@@ -1,18 +1,13 @@
 import { View, Image } from "react-native"
 import type { ViewStyle, TextStyle } from "react-native"
-import bs58 from "bs58"
 import { toast } from "sonner-native"
 
+import { AlertsSignUp } from "@/components/AlertsSignUp"
 import { Button } from "@/components/Button"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
-import { ToggleTheme } from "@/components/ThemeToggle"
 import { WalletDetails } from "@/components/WalletDetails"
-import {
-  usePrepareAuthenticationMutation,
-  useVerifyAndGetJwtMutation,
-} from "@/services/api/dialectAlerts"
-import { clearAuthDetails, setDialectJwt } from "@/store/features/authSlice"
+import { clearAuthDetails } from "@/store/features/authSlice"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
@@ -23,9 +18,6 @@ export default function HomeScreen() {
   const authDetails = useAppSelector((state) => state.auth)
   const dispatch = useAppDispatch()
   const { themed } = useAppTheme()
-
-  const [prepareAuthentication] = usePrepareAuthenticationMutation()
-  const [verifyAndGetJwt] = useVerifyAndGetJwtMutation()
 
   const handleDisconnectWallet = async () => {
     if (!authDetails.authToken) {
@@ -55,32 +47,6 @@ export default function HomeScreen() {
     }
   }
 
-  const dialectAlertsAuthentication = async (walletAddress: string) => {
-    if (!authDetails.authToken || !authDetails.address) {
-      toast.error("No auth token or address found")
-      console.error("error: No auth token or address found")
-      return
-    }
-
-    try {
-      const { message } = await prepareAuthentication({ walletAddress }).unwrap()
-      const { signatures } = await signMessage(authDetails.authToken, authDetails.address, message)
-      console.log("info: Dialect Alerts Authentication", signatures)
-
-      const signatureBase58 = bs58.encode(signatures[0])
-
-      const { token } = await verifyAndGetJwt({
-        message: message,
-        signature: signatureBase58,
-      }).unwrap()
-      console.log("info: Dialect Alerts Authentication", token)
-      dispatch(setDialectJwt(token))
-    } catch (error) {
-      console.error("error: Dialect Alerts Authentication Error", error)
-      toast.error("Error Connecting to Dialect")
-    }
-  }
-
   return (
     <Screen preset="fixed" contentContainerStyle={$styles.flex1}>
       <View style={themed($header)}>
@@ -95,13 +61,7 @@ export default function HomeScreen() {
             walletType={authDetails.walletType || ""}
             onSignMessage={handleSignMessage}
           />
-          <ToggleTheme />
-          <Button
-            onPress={() => dialectAlertsAuthentication(authDetails.address || "")}
-            text="Connect to Dialect"
-            textStyle={themed($connectButtonText)}
-            style={themed($connectButton)}
-          />
+          <AlertsSignUp />
         </View>
       </View>
       <View style={themed($footer)}>
@@ -117,7 +77,7 @@ export default function HomeScreen() {
 }
 
 const $header: ThemedStyle<ViewStyle> = (theme) => ({
-  flex: 0.4,
+  flex: 0.35,
   justifyContent: "flex-end",
   alignItems: "center",
   paddingBottom: theme.spacing.lg,
@@ -137,7 +97,7 @@ const $headerSubtitle: ThemedStyle<TextStyle> = (theme) => ({
 })
 
 const $mainContent: ThemedStyle<ViewStyle> = (theme) => ({
-  flex: 0.5,
+  flex: 0.55,
   alignItems: "center",
   padding: theme.spacing.md,
   marginTop: theme.spacing.lg,

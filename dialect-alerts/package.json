@@ -32,6 +32,7 @@
   "dependencies": {
     "@expo-google-fonts/space-grotesk": "^0.4.0",
     "@expo/metro-runtime": "~5.0.4",
+    "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-navigation/native": "^7.0.14",
     "@react-navigation/native-stack": "^7.2.0",
     "@reduxjs/toolkit": "^2.8.2",
@@ -72,6 +73,7 @@
     "react-native-svg": "^15.12.0",
     "react-native-web": "^0.20.0",
     "react-redux": "^9.2.0",
+    "redux-persist": "^6.0.0",
     "sonner-native": "^0.21.0",
     "zod": "^4.0.5"
   },

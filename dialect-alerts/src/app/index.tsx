@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { View, Image } from "react-native"
 import type { ViewStyle, TextStyle } from "react-native"
 import { useRouter } from "expo-router"
@@ -7,16 +8,23 @@ import { Button } from "@/components/Button"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { setAuthDetails } from "@/store/features/authSlice"
-import { useAppDispatch } from "@/store/store"
+import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
 import { connectWallet } from "@/utils/walletUtils"
 
 export default function Index() {
+  const { authToken, address, walletType } = useAppSelector((state) => state.auth)
   const dispatch = useAppDispatch()
   const { themed } = useAppTheme()
   const router = useRouter()
+
+  useEffect(() => {
+    if (authToken && address && walletType) {
+      router.push("/home")
+    }
+  }, [authToken, address, walletType, router])
 
   const handleConnectWallet = async () => {
     try {
@@ -28,7 +36,7 @@ export default function Index() {
           walletType: result.walletType,
         }),
       )
-      router.navigate("/home" as never)
+      router.push("/home")
     } catch (err: any) {
       toast.error("Error connecting wallet")
       console.error("error: Connect wallet error", err)
