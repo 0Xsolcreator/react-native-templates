@@ -26,12 +26,25 @@ cd react-native-templates/
 git sparse-checkout set dialect-alerts
 ```
 
-### Installation and Running the app
+### Setup and Running the app
 
-```bash
-yarn install
-yarn android
-```
+1. **Environment Setup**
+   ```bash
+   # Copy the example environment file
+   cp example.env .env.development
+   ```
+   
+   Edit `.env.development` and fill in your Dialect API variables. You can find them on [Dialect Dashboard](https://dashboard.dialect.to/).
+
+2. **Install Dependencies**
+   ```bash
+   yarn install
+   ```
+
+3. **Run the App**
+   ```bash
+   yarn android
+   ```
 
 #### For subsequent runs use `yarn start`
 

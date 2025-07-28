@@ -1,5 +1,6 @@
 import { View, Image } from "react-native"
 import type { ViewStyle, TextStyle } from "react-native"
+import { useRouter } from "expo-router"
 import { toast } from "sonner-native"
 
 import { AlertsSignUp } from "@/components/AlertsSignUp"
@@ -18,6 +19,7 @@ export default function HomeScreen() {
   const authDetails = useAppSelector((state) => state.auth)
   const dispatch = useAppDispatch()
   const { themed } = useAppTheme()
+  const router = useRouter()
 
   const handleDisconnectWallet = async () => {
     if (!authDetails.authToken) {
@@ -28,6 +30,7 @@ export default function HomeScreen() {
     try {
       await disconnectWallet(authDetails.authToken)
       dispatch(clearAuthDetails())
+      router.replace("/")
     } catch (error: any) {
       console.error("error: Disconnect wallet error", error)
     }
