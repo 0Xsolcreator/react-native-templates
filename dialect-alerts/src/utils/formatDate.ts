@@ -3,6 +3,7 @@
 // will be included in your production bundle (even if you only use one function).
 // This is because react-native does not support tree-shaking.
 import { format } from "date-fns/format"
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow"
 import type { Locale } from "date-fns/locale"
 import { parseISO } from "date-fns/parseISO"
 import i18n from "i18next"
@@ -46,4 +47,26 @@ export const formatDate = (date: string, dateFormat?: string, options?: Options)
     locale: dateFnsLocale,
   }
   return format(parseISO(date), dateFormat ?? "MMM dd, yyyy", dateOptions)
+}
+
+export const formatRelativeTime = (date: string) => {
+  const distance = formatDistanceToNow(parseISO(date), {
+    addSuffix: false,
+    locale: dateFnsLocale,
+  })
+
+  // Custom formatting to use abbreviated units
+  return distance
+    .replace(/less than a minute/, "< 1m")
+    .replace(/about a minute/, "1m")
+    .replace(/(\d+) minutes?/, "$1m")
+    .replace(/(\d+) hours?/, "$1hr")
+    .replace(/about a day/, "1d")
+    .replace(/(\d+) days?/, "$1d")
+    .replace(/about a week/, "1w")
+    .replace(/(\d+) weeks?/, "$1w")
+    .replace(/about a month/, "1mo")
+    .replace(/(\d+) months?/, "$1mo")
+    .replace(/about a year/, "1y")
+    .replace(/(\d+) years?/, "$1y")
 }

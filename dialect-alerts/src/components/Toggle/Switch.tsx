@@ -85,6 +85,9 @@ function SwitchInput(props: SwitchInputProps) {
     (v) => typeof v === "number",
   )
 
+  // Get the actual container width from style overrides or use default
+  const containerWidth = ($outerStyleOverride?.width as number) || 56
+
   const offBackgroundColor = [
     disabled && colors.palette.neutral400,
     status === "error" && colors.errorBackground,
@@ -130,12 +133,15 @@ function SwitchInput(props: SwitchInputProps) {
     $themedSwitchInner?.paddingRight ||
     0) as number
 
+  // Calculate the correct end position based on actual container width
+  const endPosition = containerWidth - (knobWidth || 0) - offsetRight
+
   const outputRange =
     Platform.OS === "web"
       ? isRTL
-        ? [+(knobWidth || 0) + offsetRight, offsetLeft]
-        : [offsetLeft, +(knobWidth || 0) + offsetRight]
-      : [rtlAdjustment * offsetLeft, rtlAdjustment * (+(knobWidth || 0) + offsetRight)]
+        ? [endPosition, offsetLeft]
+        : [offsetLeft, endPosition]
+      : [rtlAdjustment * offsetLeft, rtlAdjustment * endPosition]
 
   const $animatedSwitchKnob = animate.current.interpolate({
     inputRange: [0, 1],

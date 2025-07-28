@@ -1,6 +1,7 @@
-import { Text, View, ViewStyle, TextStyle } from "react-native"
+import { View, ViewStyle, TextStyle } from "react-native"
 import { toast } from "sonner-native"
 
+import { Text } from "@/components/Text"
 import { useAppTheme } from "@/theme/context"
 import { ThemedStyle } from "@/theme/types"
 

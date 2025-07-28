@@ -10,7 +10,7 @@ export default function HomeScreenHeader() {
   const router = useRouter()
 
   const handleBackAction = () => {
-    if (pathname === "/home/manage-alerts") {
+    if (pathname === "/home/manage-alerts" || pathname === "/home/notifications") {
       if (router.canGoBack()) {
         router.back()
       } else {
@@ -29,9 +29,13 @@ export default function HomeScreenHeader() {
         )}
       </View>
 
-      <View style={themed($bellButton)}>
-        <Image source={require("../../../assets/icons/bell.png")} />
-      </View>
+      {pathname !== "/home/notifications" && (
+        <View style={themed($bellButton)}>
+          <Pressable onPress={() => router.push("/home/notifications")}>
+            <Image source={require("../../../assets/icons/bell.png")} />
+          </Pressable>
+        </View>
+      )}
     </View>
   )
 }

@@ -15,14 +15,17 @@ import type { ThemedStyle } from "@/theme/types"
 import { connectWallet } from "@/utils/walletUtils"
 
 export default function Index() {
-  const { authToken, address, walletType } = useAppSelector((state) => state.auth)
+  const { authToken, address, walletType, dialectJwt } = useAppSelector((state) => state.auth)
   const dispatch = useAppDispatch()
   const { themed } = useAppTheme()
   const router = useRouter()
 
+  console.log(dialectJwt)
+
   useEffect(() => {
     if (authToken && address && walletType) {
-      router.push("/home")
+      console.log(router)
+      router.replace("/home")
     }
   }, [authToken, address, walletType, router])
 
@@ -36,7 +39,7 @@ export default function Index() {
           walletType: result.walletType,
         }),
       )
-      router.push("/home")
+      router.replace("/home")
     } catch (err: any) {
       toast.error("Error connecting wallet")
       console.error("error: Connect wallet error", err)

@@ -1,4 +1,5 @@
 import { View, ViewStyle, TextStyle } from "react-native"
+import { useRouter } from "expo-router"
 import bs58 from "bs58"
 import { toast } from "sonner-native"
 
@@ -18,21 +19,26 @@ export const AlertsSignUp = () => {
   const { themed } = useAppTheme()
   const authDetails = useAppSelector((state) => state.auth)
   const dispatch = useAppDispatch()
+  const router = useRouter()
 
   const [prepareAuthentication] = usePrepareAuthenticationMutation()
   const [verifyAndGetJwt] = useVerifyAndGetJwtMutation()
 
-  const dialectAlertsAuthentication = async (walletAddress: string) => {
+  const dialectAlertsManageAction = async (walletAddress: string) => {
     if (!authDetails.authToken || !authDetails.address) {
       toast.error("No auth token or address found")
       console.error("error: No auth token or address found")
       return
     }
 
+    if (authDetails.dialectJwt) {
+      router.push("/home/manage-alerts")
+      return
+    }
+
     try {
       const { message } = await prepareAuthentication({ walletAddress }).unwrap()
       const { signatures } = await signMessage(authDetails.authToken, authDetails.address, message)
-      console.log("info: Dialect Alerts Authentication", signatures)
 
       const signatureBase58 = bs58.encode(signatures[0])
 
@@ -40,7 +46,7 @@ export const AlertsSignUp = () => {
         message: message,
         signature: signatureBase58,
       }).unwrap()
-      console.log("info: Dialect Alerts Authentication", token)
+
       dispatch(setDialectJwt(token))
       toast.success("Successfully signed up for Alerts")
     } catch (error) {
@@ -53,10 +59,10 @@ export const AlertsSignUp = () => {
     <View style={themed($toggleThemeContainer)}>
       <Text style={themed($toggleThemeText)}>Dialect Alerts</Text>
       <Button
-        onPress={() => dialectAlertsAuthentication(authDetails.address || "")}
-        text="Sign Up"
+        onPress={() => dialectAlertsManageAction(authDetails.address || "")}
+        text={authDetails.dialectJwt ? "Manage" : "Sign Up"}
         textStyle={themed($connectButtonText)}
-        style={themed($connectButton)}
+        style={authDetails.dialectJwt ? themed($manageButton) : themed($connectButton)}
       />
     </View>
   )
@@ -92,4 +98,13 @@ const $connectButtonText: ThemedStyle<TextStyle> = (theme) => ({
   color: theme.colors.palette.neutral100,
   fontSize: 16,
   fontFamily: theme.typography.primary.bold,
+})
+
+const $manageButton: ThemedStyle<ViewStyle> = (theme) => ({
+  backgroundColor: theme.colors.palette.primary600,
+  borderRadius: 14,
+  paddingHorizontal: 24,
+  paddingVertical: 12,
+  alignItems: "center",
+  justifyContent: "center",
 })
