@@ -1,39 +1,21 @@
 import { useEffect, useState } from "react"
 import { Slot, SplashScreen } from "expo-router"
 import { useFonts } from "@expo-google-fonts/space-grotesk"
+import { install } from "@solana/webcrypto-ed25519-polyfill"
+import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { KeyboardProvider } from "react-native-keyboard-controller"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
-import { Toaster } from 'sonner-native';
-import { GestureHandlerRootView } from "react-native-gesture-handler"
+import { Provider } from "react-redux"
+import { Toaster } from "sonner-native"
 
 import { initI18n } from "@/i18n"
+import { store } from "@/store/store"
 import { ThemeProvider } from "@/theme/context"
 import { customFontsToLoad } from "@/theme/typography"
 import { loadDateFnsLocale } from "@/utils/formatDate"
-import { store } from "@/store/store"
 
 // Solana polyfill
-import { getRandomValues as expoCryptoGetRandomValues } from "expo-crypto";
-import { Buffer } from "buffer";
-import { Provider } from "react-redux"
-global.Buffer = Buffer;
-
-// getRandomValues polyfill
-class Crypto {
-  getRandomValues = expoCryptoGetRandomValues;
-}
-
-const webCrypto = typeof crypto !== "undefined" ? crypto : new Crypto();
-
-(() => {
-  if (typeof crypto === "undefined") {
-    Object.defineProperty(window, "crypto", {
-      configurable: true,
-      enumerable: true,
-      get: () => webCrypto,
-    });
-  }
-})();
+install()
 
 SplashScreen.preventAutoHideAsync()
 

@@ -1,20 +1,21 @@
-import React, { FC } from "react"
-import { Text, View, Image, Pressable } from "react-native"
-import { Screen } from "@/components/Screen"
-import { $styles } from "@/theme/styles"
-import { useAppDispatch, useAppSelector } from "@/store/store"
-import { clearAuthDetails, setAuthDetails } from "@/store/features/authSlice"
-import { useAppTheme } from "@/theme/context"
-import type { ThemedStyle } from "@/theme/types"
+import { FC } from "react"
+import { View, Image } from "react-native"
 import type { ViewStyle, TextStyle } from "react-native"
-import { WalletDetails } from "@/components/WalletDetails"
-import { ToggleTheme } from "@/components/ThemeToggle"
-import { Button } from "@/components/Button"
 import { toast } from "sonner-native"
+
+import { Button } from "@/components/Button"
+import { Screen } from "@/components/Screen"
+import { Text } from "@/components/Text"
+import { ToggleTheme } from "@/components/ThemeToggle"
+import { WalletDetails } from "@/components/WalletDetails"
+import { clearAuthDetails, setAuthDetails } from "@/store/features/authSlice"
+import { useAppDispatch, useAppSelector } from "@/store/store"
+import { useAppTheme } from "@/theme/context"
+import { $styles } from "@/theme/styles"
+import type { ThemedStyle } from "@/theme/types"
 import { connectWallet, disconnectWallet, signMessage } from "@/utils/walletUtils"
 
 export const HomeScreen: FC = function WelcomeScreen() {
-
   const authDetails = useAppSelector((state) => state.auth)
   const dispatch = useAppDispatch()
   const { themed } = useAppTheme()
@@ -22,11 +23,13 @@ export const HomeScreen: FC = function WelcomeScreen() {
   const handleConnectWallet = async () => {
     try {
       const result = await connectWallet()
-      dispatch(setAuthDetails({
-        authToken: result.authToken,
-        address: result.address,
-        walletType: result.walletType
-      }))
+      dispatch(
+        setAuthDetails({
+          authToken: result.authToken,
+          address: result.address,
+          walletType: result.walletType,
+        }),
+      )
     } catch (err: any) {
       console.error("error: Connect wallet error", err)
     }
@@ -37,7 +40,7 @@ export const HomeScreen: FC = function WelcomeScreen() {
       console.error("error: No auth token found")
       return
     }
-    
+
     try {
       await disconnectWallet(authDetails.authToken)
       dispatch(clearAuthDetails())
@@ -51,7 +54,7 @@ export const HomeScreen: FC = function WelcomeScreen() {
       console.error("error: No auth token or address found")
       return
     }
-    
+
     try {
       await signMessage(authDetails.authToken, authDetails.address)
       toast.success("Message signed successfully")
@@ -70,15 +73,31 @@ export const HomeScreen: FC = function WelcomeScreen() {
       <View style={themed($mainContent)}>
         {authDetails.address ? (
           <View style={themed($innerContent)}>
-            <WalletDetails address={authDetails.address || ""} walletType={authDetails.walletType || ""} onSignMessage={handleSignMessage} />
+            <WalletDetails
+              address={authDetails.address || ""}
+              walletType={authDetails.walletType || ""}
+              onSignMessage={handleSignMessage}
+            />
             <ToggleTheme />
           </View>
         ) : null}
       </View>
       <View style={themed($footer)}>
-        {authDetails.address ? 
-          <Button onPress={handleDisconnectWallet} text="Disconnect Wallet" textStyle={themed($connectButtonText)} style={themed($connectButton)} /> : 
-          <Button onPress={handleConnectWallet} text="Connect Wallet" textStyle={themed($connectButtonText)} style={themed($connectButton)} />}
+        {authDetails.address ? (
+          <Button
+            onPress={handleDisconnectWallet}
+            text="Disconnect Wallet"
+            textStyle={themed($connectButtonText)}
+            style={themed($connectButton)}
+          />
+        ) : (
+          <Button
+            onPress={handleConnectWallet}
+            text="Connect Wallet"
+            textStyle={themed($connectButtonText)}
+            style={themed($connectButton)}
+          />
+        )}
       </View>
     </Screen>
   )
@@ -126,7 +145,7 @@ const $footer: ThemedStyle<ViewStyle> = (theme) => ({
 })
 
 const $connectButton: ThemedStyle<ViewStyle> = (theme) => ({
-  width: '100%',
+  width: "100%",
   backgroundColor: theme.colors.palette.neutral900,
   borderRadius: 32,
   padding: 12,
