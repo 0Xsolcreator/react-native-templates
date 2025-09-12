@@ -1,4 +1,4 @@
-import React, { FC } from "react"
+import React, { FC, useMemo } from "react"
 import { Text, View, Image, Pressable } from "react-native"
 import { Screen } from "@/components/Screen"
 import { $styles } from "@/theme/styles"
@@ -8,24 +8,51 @@ import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import type { ViewStyle, TextStyle } from "react-native"
 import { WalletDetails } from "@/components/WalletDetails"
+import { SignMessageButton } from "@/components/SignMessageButton"
+import { SignTransactionButton } from "@/components/SignTransactionButton"
+import { SendTransactionButton } from "@/components/SendTransactionButton"
 import { ToggleTheme } from "@/components/ThemeToggle"
 import { Button } from "@/components/Button"
+import { address } from "@solana/kit"
 import { toast } from "sonner-native"
-import { connectWallet, disconnectWallet, signMessage } from "@/utils/walletUtils"
+
+import { useSignIn } from "@/services/mwa/useSignIn"
+import { useDisconnect } from "@/services/mwa/useDisconnect"
 
 export const HomeScreen: FC = function WelcomeScreen() {
 
   const authDetails = useAppSelector((state) => state.auth)
   const dispatch = useAppDispatch()
+
+  const userAddress = useMemo(() => authDetails.address ? (address(authDetails.address)) : null, [authDetails.address])
+
   const { themed } = useAppTheme()
+  const signIn = useSignIn()
+  const disconnect = useDisconnect()
 
   const handleConnectWallet = async () => {
     try {
-      const result = await connectWallet()
+      const result = await signIn({
+        cluster: "solana:devnet",
+        identity: {
+          name: "Solana Starter",
+          uri: "https://solana.com",
+        },
+        sign_in_payload: {
+          domain: "solana.com",
+          statement: "Sign in to Solana Starter",
+          uri: "https://solana.com"
+        }
+      })
+
+      if (!result) {
+        toast.error("error: No result found")
+        return
+      }
       dispatch(setAuthDetails({
-        authToken: result.authToken,
-        address: result.address,
-        walletType: result.walletType
+        authToken: result.auth_token,
+        address: result.account.address,
+        walletType: result.account.label || "Unknown"
       }))
     } catch (err: any) {
       console.error("error: Connect wallet error", err)
@@ -39,26 +66,13 @@ export const HomeScreen: FC = function WelcomeScreen() {
     }
     
     try {
-      await disconnectWallet(authDetails.authToken)
+      await disconnect({ auth_token: authDetails.authToken })
       dispatch(clearAuthDetails())
     } catch (error: any) {
       console.error("error: Disconnect wallet error", error)
     }
   }
 
-  const handleSignMessage = async () => {
-    if (!authDetails.authToken || !authDetails.address) {
-      console.error("error: No auth token or address found")
-      return
-    }
-    
-    try {
-      await signMessage(authDetails.authToken, authDetails.address)
-      toast.success("Message signed successfully")
-    } catch (error: any) {
-      console.error("error: Sign Message Error", error)
-    }
-  }
 
   return (
     <Screen preset="fixed" contentContainerStyle={$styles.flex1}>
@@ -70,7 +84,28 @@ export const HomeScreen: FC = function WelcomeScreen() {
       <View style={themed($mainContent)}>
         {authDetails.address ? (
           <View style={themed($innerContent)}>
-            <WalletDetails address={authDetails.address || ""} walletType={authDetails.walletType || ""} onSignMessage={handleSignMessage} />
+            <WalletDetails 
+              address={authDetails.address || ""} 
+              walletType={authDetails.walletType || ""} 
+            />
+            <SignMessageButton 
+              userAddress={authDetails.address} 
+              authToken={authDetails.authToken || ""} 
+              style={themed($actionButton)}
+              textStyle={themed($actionButtonText)}
+            />
+            <SendTransactionButton 
+              userAddress={authDetails.address} 
+              authToken={authDetails.authToken || ""} 
+              style={themed($actionButton)}
+              textStyle={themed($actionButtonText)}
+            />
+            <SignTransactionButton 
+              userAddress={authDetails.address} 
+              authToken={authDetails.authToken || ""} 
+              style={themed($actionButton)}
+              textStyle={themed($actionButtonText)}
+            />
             <ToggleTheme />
           </View>
         ) : null}
@@ -138,4 +173,16 @@ const $connectButtonText: ThemedStyle<TextStyle> = (theme) => ({
   color: theme.colors.palette.neutral100,
   fontSize: 16,
   fontFamily: theme.typography.primary.bold,
+})
+
+const $actionButton: ThemedStyle<ViewStyle> = (theme) => ({
+  width: "100%",
+  borderRadius: 32,
+  paddingHorizontal: 32,
+  paddingVertical: 14,
+  backgroundColor: theme.colors.palette.neutral900,
+})
+
+const $actionButtonText: ThemedStyle<TextStyle> = (theme) => ({
+  color: theme.colors.palette.neutral100,
 })
