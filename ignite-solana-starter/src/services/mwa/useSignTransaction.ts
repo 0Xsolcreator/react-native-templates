@@ -21,6 +21,7 @@ export function useSignTransaction(authInput: AuthorizeInput): (input: SignTrans
         const promise = transact(async (wallet: KitMobileWallet) => {
             const authResult = await wallet.authorize(authInput)
             const signTransaction = await wallet.signTransactions({transactions: input})
+            
             return {transactions: signTransaction, auth_token: authResult.auth_token}
         })
 
