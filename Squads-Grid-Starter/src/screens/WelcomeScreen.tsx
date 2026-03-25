@@ -8,6 +8,7 @@ import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
+import { Button } from "heroui-native"
 
 const welcomeLogo = require("@assets/images/logo.png")
 const welcomeFace = require("@assets/images/welcome-face.png")
